@@ -1,6 +1,5 @@
-def main():
-    print("Hello from dropnest!")
+from fastapi import FastAPI
 
+from src.core.lifespan import lifespan
 
-if __name__ == "__main__":
-    main()
+app = FastAPI(title="DropNest", lifespan=lifespan)
