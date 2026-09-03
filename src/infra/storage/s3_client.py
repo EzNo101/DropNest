@@ -25,10 +25,9 @@ class S3Client(StorageBackend):
     async def _client(self) -> AsyncGenerator[AioS3Client]:
         async with self.session.client(
             "s3",
-            aws_access_key_id=settings.AWS_ACCESS_KEY,
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_KEY,
             region_name=settings.AWS_REGION,
-            endpoint_url=settings.S3_ENDPOINT_URL,
         ) as s3:
             yield s3
 

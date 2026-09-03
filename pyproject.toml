@@ -9,6 +9,8 @@ dependencies = [
     "boto3>=1.40.61",
     "fastapi>=0.141.1",
     "pydantic-settings>=2.15.0",
+    "python-multipart>=0.0.32",
+    "uvicorn>=0.52.4",
 ]
 
 [dependency-groups]

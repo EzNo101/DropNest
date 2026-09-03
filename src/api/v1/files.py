@@ -2,9 +2,14 @@ import mimetypes
 
 from fastapi import APIRouter, HTTPException, Response, UploadFile
 
-from core.dependecies import StorageBackendDependency
+from src.core.dependencies import StorageBackendDependency
 
 router = APIRouter(prefix="/files", tags=["files"])
+
+
+@router.get("/", status_code=200, response_model=list[str])
+async def list_files(storage: StorageBackendDependency, prefix: str = ""):
+    return await storage.list_objects(prefix)
 
 
 @router.post("/upload", response_model=dict[str, str], status_code=200)
@@ -16,7 +21,7 @@ async def upload_file(file: UploadFile, storage: StorageBackendDependency):
 
 
 @router.get("/{key:path}", status_code=200)
-async def download_file(key: str, storage: StorageBackendDependency):
+async def download_file(key: str, storage: StorageBackendDependency) -> Response:
     content = await storage.get_object(key)
     media_type, _ = mimetypes.guess_type(key)
     return Response(
@@ -26,4 +31,6 @@ async def download_file(key: str, storage: StorageBackendDependency):
     )
 
 
-# TODO: Implement delete_file and list_files endpoints
+@router.delete("/{key:path}", response_model=None, status_code=204)
+async def delete_file(key: str, storage: StorageBackendDependency):
+    await storage.delete_object(key)
