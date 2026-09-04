@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+    /* page background color */
+    --color-ink: #090d12;
+
+    /* background color of the cards and panels */
+    --color-panel: #10161d;
+    --color-panel-hover: #17202a;
+
+    /* border elements */
+    --color-line: #22303b;
+
+    /* Main color */
+    --color-accent: #2dd4bf;
+    --color-accent-hover: #14b8a6;
+
+    --color-danger: #f43f5e;
+}
