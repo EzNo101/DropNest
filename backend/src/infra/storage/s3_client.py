@@ -4,8 +4,6 @@ from typing import BinaryIO
 
 import aioboto3
 from botocore.exceptions import ClientError, EndpointConnectionError
-from types_aiobotocore_s3.client import S3Client as AioS3Client
-
 from src.core.config import settings
 from src.core.exceptions import (
     ObjectNotFoundError,
@@ -14,6 +12,7 @@ from src.core.exceptions import (
     StorageUploadError,
 )
 from src.infra.storage.base import StorageBackend
+from types_aiobotocore_s3.client import S3Client as AioS3Client
 
 
 class S3Client(StorageBackend):

@@ -1,7 +1,6 @@
 import mimetypes
 
 from fastapi import APIRouter, HTTPException, Response, UploadFile
-
 from src.core.dependencies import StorageBackendDependency
 
 router = APIRouter(prefix="/files", tags=["files"])
