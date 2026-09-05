@@ -17,4 +17,4 @@ Both services are containerized with Docker Compose.
 **What's next**
 
 - More features
-- A steadily improving frontendі
+- A steadily improving frontend
