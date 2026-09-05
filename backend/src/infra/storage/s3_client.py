@@ -1,3 +1,4 @@
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import BinaryIO
@@ -13,6 +14,8 @@ from src.core.exceptions import (
 )
 from src.infra.storage.base import StorageBackend
 from types_aiobotocore_s3.client import S3Client as AioS3Client
+
+logger = logging.getLogger(__name__)
 
 
 class S3Client(StorageBackend):
@@ -31,12 +34,15 @@ class S3Client(StorageBackend):
             yield s3
 
     async def put_object(self, key: str, file_obj: BinaryIO) -> None:
+        logger.info("Uploading object: %s", key)
         try:
             async with self._client() as s3:
                 await s3.put_object(Bucket=self.bucket, Key=key, Body=file_obj)
         except EndpointConnectionError as e:
+            logger.error("Failed to connect to S3: %s", e)
             raise StorageConnectionError(f"Failed to connect to S3: {e}")
         except ClientError as e:
+            logger.error("Failed to upload %s: %s", key, e)
             raise StorageUploadError(f"Failed to upload object to S3: {e}")
 
     async def get_object(self, key: str) -> bytes:
@@ -45,8 +51,10 @@ class S3Client(StorageBackend):
                 response = await s3.get_object(Bucket=self.bucket, Key=key)
                 return await response["Body"].read()
         except EndpointConnectionError as e:
+            logger.error("Failed to connect to S3: %s", e)
             raise StorageConnectionError(f"Failed to connect to S3: {e}")
         except ClientError as e:
+            logger.error("Failed to retrieve %s: %s", key, e)
             error_code = e.response.get("Error", {}).get("Code", "")
             if error_code == "NoSuchKey":
                 raise ObjectNotFoundError(key) from e
@@ -56,12 +64,16 @@ class S3Client(StorageBackend):
         try:
             async with self._client() as s3:
                 await s3.delete_object(Bucket=self.bucket, Key=key)
+                logger.info("Deleting object: %s", key)
         except EndpointConnectionError as e:
+            logger.error("Failed to connect to S3: %s", e)
             raise StorageConnectionError(f"Failed to connect to S3: {e}")
         except ClientError as e:
+            logger.error("Failed to delete %s: %s", key, e)
             raise StorageError(f"Failed to delete object from S3: {e}") from e
 
     async def list_objects(self, prefix: str = "") -> list[str]:
+        logger.info("Listing objects with prefix: %s", prefix)
         try:
             async with self._client() as s3:
                 response = await s3.list_objects_v2(Bucket=self.bucket, Prefix=prefix)
@@ -69,6 +81,8 @@ class S3Client(StorageBackend):
 
                 return [obj["Key"] for obj in contents if "Key" in obj]
         except EndpointConnectionError as e:
+            logger.error("Failed to connect to S3: %s", e)
             raise StorageConnectionError(f"Failed to connect to S3: {e}")
         except ClientError as e:
+            logger.error("Failed to list objects with prefix %s: %s", prefix, e)
             raise StorageError(f"Failed to list objects in S3: {e}") from e
